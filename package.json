@@ -1,0 +1,28 @@
+{
+  "name": "large-movie-database",
+  "version": "1.0.0",
+  "description": "An attempt to web scrap the largest amount of data related to movies (using various existing databases such as IMDB, The Movie Database or OMDB)",
+  "main": "scrapper.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Blockost/lmd.git"
+  },
+  "keywords": [
+    "large",
+    "movie",
+    "database"
+  ],
+  "author": "Simon ESPIGOLÉ",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Blockost/lmd/issues"
+  },
+  "homepage": "https://github.com/Blockost/lmd#readme",
+  "dependencies": {
+    "mysql": "^2.12.0",
+    "request": "^2.79.0"
+  }
+}
