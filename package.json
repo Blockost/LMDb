@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Blockost/lmd.git"
+    "url": "git+https://github.com/Blockost/LMDb.git"
   },
   "keywords": [
     "large",
@@ -18,9 +18,9 @@
   "author": "Simon ESPIGOLÉ",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/Blockost/lmd/issues"
+    "url": "https://github.com/Blockost/LMDb/issues"
   },
-  "homepage": "https://github.com/Blockost/lmd#readme",
+  "homepage": "https://github.com/Blockost/LMDb#readme",
   "dependencies": {
     "mysql": "^2.12.0",
     "request": "^2.79.0"
