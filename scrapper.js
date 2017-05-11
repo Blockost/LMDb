@@ -6,12 +6,12 @@
 let request = require('request');
 let mysql = require("mysql");
 
-const API_KEY_V3 = 'f1b8e21ba67985a66c2ef448f467e3c7';
-const BASE_URL = 'https://api.themoviedb.org/3/movie/437980';
-const LATEST_MOVIE_ID = 438012; // 29/01/17
+const API_KEY_V3 = 'YOUR_API_KEY';
+const BASE_URL = 'https://api.themoviedb.org/3/movie/1';
+const LATEST_MOVIE_ID = 456533; // 07/05/17
 let params;
 
-let con = mysql.createConnection({
+let sql = mysql.createConnection({
     host: 'localhost',
     user: 'root',
     password: 'root',
@@ -37,7 +37,7 @@ let options = {
 function sendRequest(options) {
     let current_movie_id = parseInt(getMovieIdFromUrl(options.url));
     if (current_movie_id <= LATEST_MOVIE_ID) {
-        request(options, function (err, response, body) {
+        request(options, (err, response, body) => {
             let next_movie_id = current_movie_id + 1;
 
             if (err) console.log(err);
@@ -50,14 +50,12 @@ function sendRequest(options) {
                     sendRequest(options);
                 }, 10000);
 
-                // If movie not found
-            } else if (response.statusCode == 404) {
-                // Perhaps moved or deleted
-                options.url = incrementUrl(options.url, next_movie_id);
-                sendRequest(options);
+
             } else {
-                // Pass it to the response handler
-                responseHandler(body);
+                // If movie found
+                if (response.statusCode !== 404)
+                    responseHandler(body);
+
                 options.url = incrementUrl(options.url, next_movie_id);
                 sendRequest(options);
             }
@@ -76,16 +74,17 @@ function responseHandler(body) {
             movie.id,
             movie.title,
             movie.overview,
+            movie.tagline,
+            extractGenres(movie),
             movie.vote_average,
             movie.vote_count
-            // + movie.tagline for experiment purposes ?
         ];
 
         // Add it to the database
-        con.query('INSERT INTO movies SET ' +
-            'TMDbId = ?, title = ?, shortPlot = ?, rating = ?, numberOfVotes = ?',
+        sql.query('INSERT INTO Movies SET ' +
+            'TMDbId = ?, title = ?, overview = ?, tagline = ?, genres = ?, rating = ?, numberOfVotes = ?',
             params,
-            (err, result) => {
+            (err) => {
                 // Potential common error is DUPLICATE_FOUND
                 if (err) console.log(err.code + ' for ' + movie.title + ' (' + movie.id + ')');
             });
@@ -93,9 +92,11 @@ function responseHandler(body) {
 }
 
 function isMovieAdmissible(movie) {
-    // English
-    // not adult
-    return !movie.adult /*&& movie.overview.split(' ').length >= 10*/;
+    // English, not adult, with a plot
+    return !movie.adult
+        && movie.original_language === 'en'
+        && movie.overview
+        && movie.overview.split(' ').length >= 5;
 }
 
 function getMovieIdFromUrl(url) {
@@ -109,6 +110,13 @@ function incrementUrl(url, nextMovieId) {
     let length = split_url.length;
     split_url[length - 1] = nextMovieId;
     return split_url.join('/');
+}
+
+function extractGenres(movie) {
+    let genres = movie.genres;
+    return genres
+        .map((genre) => genre.name)
+        .join(',');
 }
 
 
